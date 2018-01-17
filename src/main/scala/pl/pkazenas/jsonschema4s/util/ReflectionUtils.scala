@@ -3,10 +3,13 @@ package pl.pkazenas.jsonschema4s.util
 import scala.reflect.runtime.universe._
 
 object ReflectionUtils {
+
   implicit class SymbolImplicits(symbol: Symbol) {
-    def isCaseClass = if(symbol.isClass) symbol.asClass.isCaseClass else false
+    def isCaseClass = if (symbol.isClass) symbol.asClass.isCaseClass else false
 
     def isTrait = asClassOpt.fold(false)(_.isTrait)
+
+    def isSealedTrait = asClassOpt.fold(false)(_.isSealed)
 
     def isAbstractClass = asClassOpt.fold(false)(_.isAbstract)
 
@@ -19,7 +22,22 @@ object ReflectionUtils {
   implicit class TypeImplicits(`type`: Type) {
     def isClass = `type`.typeSymbol.isClass
 
-    def toModel = ???
+    def isCaseClass = `type`.typeSymbol.isCaseClass
+
+    def isTrait = `type`.typeSymbol.isTrait
+
+    def isSealedTrait = `type`.typeSymbol.isSealedTrait
+
+    def isAbstractClass = `type`.typeSymbol.isAbstractClass
+  }
+
+  implicit class ClassImplicits(classSymbol: ClassSymbol) {
+    def primaryConstructorParams =
+      classSymbol
+        .primaryConstructor
+        .typeSignature
+        .paramLists
+        .headOption
   }
 
 }

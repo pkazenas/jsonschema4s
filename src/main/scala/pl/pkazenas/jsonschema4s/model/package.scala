@@ -4,10 +4,14 @@ package object model {
 
   sealed trait TypeDefinition
 
-  case class ClassField(name: String, typeDefinition: TypeDefinition)
+  case class ClassField(name: String,
+                        typeDefinition: TypeDefinition,
+                        required: Boolean = true)
 
   // simple types
   case object ByteType extends TypeDefinition
+  case object CharType extends TypeDefinition
+  case object ShortType extends TypeDefinition
   case object IntType extends TypeDefinition
   case object LongType extends TypeDefinition
   case object DoubleType extends TypeDefinition
@@ -24,6 +28,5 @@ package object model {
   case class AbstractClassType(implementations: List[CaseClassType])
 
   case class RootType(name: String,
-                      description: String = "",
-                      dependentTypes: List[ClassField])
+                      fields: List[ClassField])
 }
