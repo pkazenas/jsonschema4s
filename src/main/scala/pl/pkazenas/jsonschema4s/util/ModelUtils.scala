@@ -3,6 +3,7 @@ package pl.pkazenas.jsonschema4s.util
 import scala.reflect.runtime.universe._
 import pl.pkazenas.jsonschema4s.model._
 import ReflectionUtils._
+import pl.pkazenas.jsonschema4s.core.ModelExtractionException
 
 object ModelUtils {
 
@@ -12,6 +13,13 @@ object ModelUtils {
         .primaryConstructorParams
         .map(_.map(symbol => symbol.toClassField))
         .getOrElse(List())
+
+    def sealedTraitHierarchy =
+      classSymbol
+        .knownDirectSubclasses
+        .filter(_.isCaseClass)
+        .map(symbol => CaseClassType(symbol.name.toString, symbol.asClass.classFields))
+        .toList
   }
 
   implicit class TypeModelImplicits(`type`: Type) {
@@ -30,10 +38,11 @@ object ModelUtils {
         case t if t <:< typeOf[Option[_]] => OptionalType(t.dealias.typeArgs.head.toTypeDefinition)
         //collection types, // TODO: implement this
         // complex types
-        case t if t.isCaseClass =>  CaseClassType(t.typeSymbol.name.toString, t.asClass.classFields)  // TODO:
+        case t if t.isCaseClass => CaseClassType(t.typeSymbol.name.toString, t.asClass.classFields) // TODO:
+        case t if t.isSealedTrait => TraitType(t.asClass.sealedTraitHierarchy)
         case t if t.isTrait => ??? // TODO: handle hierarchy
         case t if t.isAbstractClass => ??? // TODO: handle hierarchy
-        case t if t.isSealedTrait => ??? // TODO: handle this case
+        case t => throw new ModelExtractionException(s"Unsupported type encountered: ${t.typeSymbol.fullName}")
       }
     }
   }

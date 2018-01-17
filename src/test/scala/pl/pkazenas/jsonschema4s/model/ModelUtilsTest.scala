@@ -64,4 +64,15 @@ class ModelUtilsTest extends FunSuite with OneInstancePerTest {
     val actual = typeOf[NestedClass].toTypeDefinition
     assertResult(expected)(actual)
   }
+
+  test("sealed trait hierarchy parsing") {
+    val expected =
+      TraitType(
+        List(
+          CaseClassType("Cat", List(ClassField("owner", StringType))),
+          CaseClassType("Dog", List(ClassField("name", StringType))))
+      )
+
+    assertResult(expected)(typeOf[Animal].toTypeDefinition)
+  }
 }

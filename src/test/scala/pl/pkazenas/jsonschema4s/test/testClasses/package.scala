@@ -7,4 +7,8 @@ package object testClasses {
   case class C(a: A, b: B)
 
   case class NestedClass(first: A, second: B, third: C)
+
+  sealed trait Animal
+  case class Dog(name: String) extends Animal
+  case class Cat(owner: String) extends Animal
 }
