@@ -6,8 +6,16 @@ import ReflectionUtils._
 
 object ModelUtils {
 
+  implicit class ClassModelImplicits(classSymbol: ClassSymbol) {
+    def classFields =
+      classSymbol
+        .primaryConstructorParams
+        .map(_.map(symbol => symbol.toClassField))
+        .getOrElse(List())
+  }
+
   implicit class TypeModelImplicits(`type`: Type) {
-    def toTypeDefinition: TypeDefinition = {
+    final def toTypeDefinition: TypeDefinition = {
       `type` match {
         // primitive types
         case t if t =:= typeOf[Byte] => ByteType
@@ -22,7 +30,7 @@ object ModelUtils {
         case t if t <:< typeOf[Option[_]] => OptionalType(t.dealias.typeArgs.head.toTypeDefinition)
         //collection types, // TODO: implement this
         // complex types
-        case t if t.isCaseClass => ??? // TODO:
+        case t if t.isCaseClass =>  CaseClassType(t.typeSymbol.name.toString, t.asClass.classFields)  // TODO:
         case t if t.isTrait => ??? // TODO: handle hierarchy
         case t if t.isAbstractClass => ??? // TODO: handle hierarchy
         case t if t.isSealedTrait => ??? // TODO: handle this case

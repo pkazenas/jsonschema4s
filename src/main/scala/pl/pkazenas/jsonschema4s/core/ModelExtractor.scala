@@ -12,9 +12,8 @@ object ModelExtractor {
     `type`
       .typeSymbol
       .asClass
-      .primaryConstructorParams
-      .map(_.map(s => s.toClassField))
-      .getOrElse(List())
+      .classFields
+
 
   private def extractCaseClass(`type`: Type): RootType = {
     val name = `type`.typeSymbol.name.toString

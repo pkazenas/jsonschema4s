@@ -20,6 +20,8 @@ object ReflectionUtils {
   }
 
   implicit class TypeImplicits(`type`: Type) {
+    def asClass = `type`.typeSymbol.asClass
+
     def isClass = `type`.typeSymbol.isClass
 
     def isCaseClass = `type`.typeSymbol.isCaseClass
