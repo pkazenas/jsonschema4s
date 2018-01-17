@@ -6,23 +6,20 @@ import ReflectionUtils._
 
 object ModelUtils {
 
-  implicit class SymbolModelImplicits(symbol: Symbol) {
-    def toClassField: ClassField = {
-      val fieldName = symbol.name.toString
-
-      val (modelType, required) =
-      symbol.typeSignature match {
+  implicit class TypeModelImplicits(`type`: Type) {
+    def toTypeDefinition: TypeDefinition = {
+      `type` match {
         // primitive types
-        case t if t =:= typeOf[Byte] => (ByteType, true)
-        case t if t =:= typeOf[Char] => (CharType, true)
-        case t if t =:= typeOf[Short] => (ShortType, true)
-        case t if t =:= typeOf[Int] => (IntType, true)
-        case t if t =:= typeOf[Long] => (LongType, true)
-        case t if t =:= typeOf[Float] => (FloatType, true)
-        case t if t =:= typeOf[Double] => (DoubleType, true)
+        case t if t =:= typeOf[Byte] => ByteType
+        case t if t =:= typeOf[Char] => CharType
+        case t if t =:= typeOf[Short] => ShortType
+        case t if t =:= typeOf[Int] => IntType
+        case t if t =:= typeOf[Long] => LongType
+        case t if t =:= typeOf[Float] => FloatType
+        case t if t =:= typeOf[Double] => DoubleType
         // other builtin types
-        case t if t =:= typeOf[String] => (StringType, true)
-        case t if t <:< typeOf[Option[_]] => ??? // TODO: implement this
+        case t if t =:= typeOf[String] => StringType
+        case t if t <:< typeOf[Option[_]] => OptionalType(t.dealias.typeArgs.head.toTypeDefinition)
         //collection types, // TODO: implement this
         // complex types
         case t if t.isCaseClass => ??? // TODO:
@@ -30,8 +27,12 @@ object ModelUtils {
         case t if t.isAbstractClass => ??? // TODO: handle hierarchy
         case t if t.isSealedTrait => ??? // TODO: handle this case
       }
+    }
+  }
 
-      ClassField(fieldName, modelType, required)
+  implicit class SymbolModelImplicits(symbol: Symbol) {
+    def toClassField: ClassField = {
+      ClassField(symbol.name.toString, symbol.typeSignature.toTypeDefinition)
     }
   }
 

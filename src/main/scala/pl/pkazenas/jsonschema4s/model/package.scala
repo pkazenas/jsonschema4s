@@ -5,8 +5,7 @@ package object model {
   sealed trait TypeDefinition
 
   case class ClassField(name: String,
-                        typeDefinition: TypeDefinition,
-                        required: Boolean = true)
+                        typeDefinition: TypeDefinition)
 
   // simple types
   case object ByteType extends TypeDefinition
@@ -17,6 +16,9 @@ package object model {
   case object DoubleType extends TypeDefinition
   case object FloatType extends TypeDefinition
   case object StringType extends TypeDefinition
+
+  // Other types
+  case class OptionalType(wrappedType: TypeDefinition) extends TypeDefinition
   case class ArrayType(typeDefinition: TypeDefinition) extends TypeDefinition
   case class MapType(keyTypeDefinition: TypeDefinition, valueTypeDefinition: TypeDefinition) extends TypeDefinition
 
