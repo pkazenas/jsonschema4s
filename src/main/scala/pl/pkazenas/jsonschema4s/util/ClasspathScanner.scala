@@ -9,14 +9,10 @@ import org.reflections.util.ConfigurationBuilder
 import scala.collection.JavaConverters.iterableAsScalaIterableConverter
 
 class ClasspathScanner(classLoader: ClassLoader, packages: List[String] = List()) {
-  lazy val reflections = {
-    val configuration =
-      new ConfigurationBuilder()
-        .addClassLoader(classLoader)
-        .forPackages(packages: _*)
+  lazy val reflections =
+    new Reflections(ConfigurationBuilder.build(classLoader).forPackages( packages: _*))
 
-    new Reflections(configuration)
-  }
+
   lazy val mirror = runtimeMirror(classLoader)
 
   def findSubclasses(`type`: Type): List[Type] =

@@ -23,6 +23,9 @@ trait Shape
 case class Square(size: Int) extends Shape
 case class Circle(radius: Int) extends Shape
 
+
 abstract class Plant
 case class Pine(height: Int) extends Plant
 case class Cactus(needleCount: Long) extends Plant
+
+case class WrappedAbstracts(shape: Shape, plant: Plant)

@@ -7,13 +7,13 @@ import pl.pkazenas.jsonschema4s.core.ModelExtractionException
 
 object ModelUtils {
   implicit class ClassModelImplicits(classSymbol: ClassSymbol) {
-    def classFields =
+    def classFields(implicit classPathScanner: ClasspathScanner = ClasspathScanner.default) =
       classSymbol
         .primaryConstructorParams
         .map(_.map(symbol => symbol.toClassField))
         .getOrElse(List())
 
-    def sealedTraitHierarchy =
+    def sealedTraitHierarchy(implicit classPathScanner: ClasspathScanner = ClasspathScanner.default) =
       classSymbol
         .knownDirectSubclasses
         .filter(_.isCaseClass)
@@ -37,7 +37,7 @@ object ModelUtils {
         case t if t <:< typeOf[Option[_]] => OptionalType(t.dealias.typeArgs.head.toTypeDefinition)
         //collection types, // TODO: implement this
         // complex types
-        case t if t.isCaseClass => CaseClassType(t.typeSymbol.name.toString, t.asClass.classFields) // TODO:
+        case t if t.isCaseClass => CaseClassType(t.typeSymbol.name.toString, t.asClass.classFields)
         case t if t.isSealedTrait => TraitType(t.asClass.sealedTraitHierarchy)
         case t if t.isTrait => TraitType(HierarchyExtractor.findSubclasses(t))
         case t if t.isAbstractClass => AbstractClassType(HierarchyExtractor.findSubclasses(t))
@@ -47,7 +47,7 @@ object ModelUtils {
   }
 
   implicit class SymbolModelImplicits(symbol: Symbol) {
-    def toClassField: ClassField = {
+    def toClassField(implicit classPathScanner: ClasspathScanner = ClasspathScanner.default): ClassField = {
       ClassField(symbol.name.toString, symbol.typeSignature.toTypeDefinition)
     }
   }
