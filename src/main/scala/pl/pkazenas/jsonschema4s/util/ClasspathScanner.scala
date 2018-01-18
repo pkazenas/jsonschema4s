@@ -34,4 +34,6 @@ class ClasspathScanner(classLoader: ClassLoader, packages: List[String] = List()
 
 object ClasspathScanner {
   def apply(classLoader: ClassLoader, packages: List[String] = List()): ClasspathScanner = new ClasspathScanner(classLoader, packages)
+
+  lazy val default = ClasspathScanner(ClassLoader.getSystemClassLoader)
 }

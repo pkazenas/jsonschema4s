@@ -22,7 +22,7 @@ object ModelUtils {
   }
 
   implicit class TypeModelImplicits(`type`: Type) {
-    final def toTypeDefinition: TypeDefinition = {
+    final def toTypeDefinition(implicit classPathScanner: ClasspathScanner = ClasspathScanner.default): TypeDefinition = {
       `type` match {
         // primitive types
         case t if t =:= typeOf[Byte] => ByteType
@@ -39,8 +39,8 @@ object ModelUtils {
         // complex types
         case t if t.isCaseClass => CaseClassType(t.typeSymbol.name.toString, t.asClass.classFields) // TODO:
         case t if t.isSealedTrait => TraitType(t.asClass.sealedTraitHierarchy)
-        case t if t.isTrait => ??? // TODO: handle hierarchy
-        case t if t.isAbstractClass => ??? // TODO: handle hierarchy
+        case t if t.isTrait => TraitType(HierarchyExtractor.findSubclasses(t))
+        case t if t.isAbstractClass => AbstractClassType(HierarchyExtractor.findSubclasses(t))
         case t => throw new ModelExtractionException(s"Unsupported type encountered: ${t.typeSymbol.fullName}")
       }
     }

@@ -27,8 +27,9 @@ package object model {
                            fields: List[ClassField]) extends TypeDefinition
 
   case class TraitType(implementations: List[CaseClassType]) extends TypeDefinition
-  case class AbstractClassType(implementations: List[CaseClassType])
+  case class AbstractClassType(implementations: List[CaseClassType]) extends TypeDefinition
 
+  // root model type
   case class RootType(name: String,
                       fields: List[ClassField])
 }
