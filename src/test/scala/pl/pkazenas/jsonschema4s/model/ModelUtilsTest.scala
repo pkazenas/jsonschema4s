@@ -8,6 +8,10 @@ import pl.pkazenas.jsonschema4s.test.testClasses._
 import pl.pkazenas.jsonschema4s.util.ModelUtils._
 
 class ModelUtilsTest extends FunSuite with OneInstancePerTest {
+  test("Boolean type parsing") {
+    assertResult(BooleanType)(typeOf[Boolean].toTypeDefinition)
+  }
+
   test("Int type parsing") {
     assertResult(IntType)(typeOf[Int].toTypeDefinition)
   }

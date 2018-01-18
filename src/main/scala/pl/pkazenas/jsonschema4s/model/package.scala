@@ -8,6 +8,7 @@ package object model {
                         typeDefinition: TypeDefinition)
 
   // simple types
+  case object BooleanType extends TypeDefinition
   case object ByteType extends TypeDefinition
   case object CharType extends TypeDefinition
   case object ShortType extends TypeDefinition

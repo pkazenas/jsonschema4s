@@ -25,6 +25,7 @@ object ModelUtils {
     final def toTypeDefinition(implicit classPathScanner: ClasspathScanner = ClasspathScanner.default): TypeDefinition = {
       `type` match {
         // primitive types
+        case t if t =:= typeOf[Boolean] => BooleanType
         case t if t =:= typeOf[Byte] => ByteType
         case t if t =:= typeOf[Char] => CharType
         case t if t =:= typeOf[Short] => ShortType
