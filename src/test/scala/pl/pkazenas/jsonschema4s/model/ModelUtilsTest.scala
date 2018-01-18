@@ -75,4 +75,20 @@ class ModelUtilsTest extends FunSuite with OneInstancePerTest {
 
     assertResult(expected)(typeOf[Animal].toTypeDefinition)
   }
+
+  test("List type parsing") {
+    assertResult(ArrayType(StringType))(typeOf[List[String]].toTypeDefinition)
+  }
+
+  test("Array type parsing") {
+    assertResult(ArrayType(StringType))(typeOf[Array[String]].toTypeDefinition)
+  }
+
+  test("Set type parsing") {
+    assertResult(ArrayType(StringType))(typeOf[Set[String]].toTypeDefinition)
+  }
+
+  test("Map type parsing") {
+    assertResult(MapType(StringType, LongType))(typeOf[Map[String, Long]].toTypeDefinition)
+  }
 }

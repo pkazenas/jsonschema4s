@@ -15,14 +15,13 @@ package object testClasses {
   sealed trait Animal
   case class Dog(name: String) extends Animal
   case class Cat(owner: String) extends Animal
+
+  case class CollectionClass(array: Array[B], list: List[String], set: Set[Int], map: Map[String, String])
 }
-
-
 
 trait Shape
 case class Square(size: Int) extends Shape
 case class Circle(radius: Int) extends Shape
-
 
 abstract class Plant
 case class Pine(height: Int) extends Plant

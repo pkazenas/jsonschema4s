@@ -35,7 +35,11 @@ object ModelUtils {
         // other builtin types
         case t if t =:= typeOf[String] => StringType
         case t if t <:< typeOf[Option[_]] => OptionalType(t.dealias.typeArgs.head.toTypeDefinition)
-        //collection types, // TODO: implement this
+        //collection types
+        case t if t <:< typeOf[Array[_]] => ArrayType(t.dealiasedTypeArg(0).toTypeDefinition)
+        case t if t <:< typeOf[Seq[_]] => ArrayType(t.dealiasedTypeArg(0).toTypeDefinition)
+        case t if t <:< typeOf[Set[_]] => ArrayType(t.dealiasedTypeArg(0).toTypeDefinition)
+        case t if t <:< typeOf[Map[_, _]] => MapType(t.dealiasedTypeArg(0).toTypeDefinition, t.dealiasedTypeArg(1).toTypeDefinition)
         // complex types
         case t if t.isCaseClass => CaseClassType(t.typeSymbol.name.toString, t.asClass.classFields)
         case t if t.isSealedTrait => TraitType(t.asClass.sealedTraitHierarchy)
