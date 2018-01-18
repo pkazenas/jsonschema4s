@@ -15,8 +15,6 @@ object ReflectionUtils {
 
     def asClassOpt: Option[ClassSymbol] = scala.util.Try(symbol.asClass).toOption
 
-    def asJavaClass(implicit classLoader: ClassLoader): Option[Class[_]] =
-      scala.util.Try(runtimeMirror(classLoader).runtimeClass(symbol.typeSignature)).toOption
   }
 
   implicit class TypeImplicits(`type`: Type) {
@@ -31,6 +29,9 @@ object ReflectionUtils {
     def isSealedTrait = `type`.typeSymbol.isSealedTrait
 
     def isAbstractClass = `type`.typeSymbol.isAbstractClass
+
+    def asJavaClass(implicit classLoader: ClassLoader): Option[Class[_]] =
+      scala.util.Try(runtimeMirror(classLoader).runtimeClass(`type`)).toOption
   }
 
   implicit class ClassImplicits(classSymbol: ClassSymbol) {

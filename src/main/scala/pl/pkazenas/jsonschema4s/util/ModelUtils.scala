@@ -6,7 +6,6 @@ import ReflectionUtils._
 import pl.pkazenas.jsonschema4s.core.ModelExtractionException
 
 object ModelUtils {
-
   implicit class ClassModelImplicits(classSymbol: ClassSymbol) {
     def classFields =
       classSymbol
