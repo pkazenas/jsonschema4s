@@ -5,6 +5,7 @@ import org.scalatest.{FunSuite, OneInstancePerTest}
 
 import scala.reflect.runtime.universe._
 import pl.pkazenas.jsonschema4s.test.testClasses._
+import pl.pkazenas.jsonschema4s.util.ModelUtils
 import pl.pkazenas.jsonschema4s.util.ModelUtils._
 
 class ModelUtilsTest extends FunSuite with OneInstancePerTest {
@@ -94,5 +95,26 @@ class ModelUtilsTest extends FunSuite with OneInstancePerTest {
 
   test("Map type parsing") {
     assertResult(MapType(StringType, LongType))(typeOf[Map[String, Long]].toTypeDefinition)
+  }
+
+  test("findAllCaseClassTypes") {
+    val rootType =
+      RootType(
+        "test",
+        List(
+          ClassField("a", CaseClassType("Test1", List(ClassField("b", CaseClassType("Test2", List(ClassField("c", IntType))))))),
+          ClassField("b", TraitType(List(CaseClassType("Test3", List(ClassField("d", StringType))))))
+        )
+      )
+
+    val expected =
+      List(
+        CaseClassType("Test1", List(ClassField("b", CaseClassType("Test2", List(ClassField("c", IntType)))))),
+        CaseClassType("Test3", List(ClassField("d", StringType))),
+        CaseClassType("Test2", List(ClassField("c", IntType))))
+
+    val actual = ModelUtils.findAllCaseClassTypes(rootType)
+
+    assertResult(expected)(actual)
   }
 }

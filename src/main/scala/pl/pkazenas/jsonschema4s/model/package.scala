@@ -24,11 +24,13 @@ package object model {
   case class MapType(keyTypeDefinition: TypeDefinition, valueTypeDefinition: TypeDefinition) extends TypeDefinition
 
   // Complex types
-  case class CaseClassType(typeName: String,
-                           fields: List[ClassField]) extends TypeDefinition
+  sealed trait ComplexType extends TypeDefinition
 
-  case class TraitType(implementations: List[CaseClassType]) extends TypeDefinition
-  case class AbstractClassType(implementations: List[CaseClassType]) extends TypeDefinition
+  case class CaseClassType(typeName: String,
+                           fields: List[ClassField]) extends ComplexType
+
+  case class TraitType(implementations: List[CaseClassType]) extends ComplexType
+  case class AbstractClassType(implementations: List[CaseClassType]) extends ComplexType
 
   // root model type
   case class RootType(name: String,

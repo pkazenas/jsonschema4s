@@ -5,7 +5,32 @@ import pl.pkazenas.jsonschema4s.model._
 import ReflectionUtils._
 import pl.pkazenas.jsonschema4s.core.ModelExtractionException
 
+import scala.annotation.tailrec
+
 object ModelUtils {
+  def findAllCaseClassTypes(rootType: RootType): List[CaseClassType] = {
+    @tailrec
+    def loop(fields: List[ClassField], accum: List[CaseClassType] = List()): List[CaseClassType] =
+      if (fields.isEmpty) accum
+      else {
+        val caseClasses =
+          fields
+            .flatMap(field => {
+              field.typeDefinition match {
+                case caseClassType: CaseClassType => List(caseClassType)
+                case traitType: TraitType => traitType.implementations
+                case abstractClassType: AbstractClassType => abstractClassType.implementations
+                case _ => List()
+              }
+            })
+            .distinct
+
+        loop(caseClasses.flatMap(_.fields), accum ++ caseClasses)
+      }
+
+    loop(rootType.fields).distinct
+  }
+
   implicit class ClassModelImplicits(classSymbol: ClassSymbol) {
     def classFields(implicit classPathScanner: ClasspathScanner = ClasspathScanner.default) =
       classSymbol
