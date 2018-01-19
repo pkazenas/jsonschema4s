@@ -48,7 +48,7 @@ object JsonSchemaGenerator {
   def classFieldsToPropertiesAndRequired(classFields: List[ClassField]): (JsField, JsField) ={
     val jsFields = classFields.map(classFieldToJsField _)
     val requiredFieldsArray =
-      requiredArray(classFields.filter(cf => isOptionalType(cf.typeDefinition)).map(_.name))
+      requiredArray(classFields.filter(cf => !isOptionalType(cf.typeDefinition)).map(_.name))
 
     (objectField("properties", jsFields), requiredFieldsArray)
   }
