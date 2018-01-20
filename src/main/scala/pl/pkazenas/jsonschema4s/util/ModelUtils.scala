@@ -8,6 +8,10 @@ import pl.pkazenas.jsonschema4s.core.ModelExtractionException
 import scala.annotation.tailrec
 
 object ModelUtils {
+  def isOptionalType(typeDefinition: TypeDefinition) = typeDefinition.isInstanceOf[OptionalType]
+
+  def isArrayType(typeDefinition: TypeDefinition) = typeDefinition.isInstanceOf[ArrayType]
+
   def findAllComplexTypes(rootType: RootType): List[ComplexType] = {
     @tailrec
     def loop(fields: List[ClassField], accum: List[ComplexType] = List()): List[ComplexType] =

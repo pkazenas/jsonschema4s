@@ -3,12 +3,12 @@ package pl.pkazenas.jsonschema4s.core.json
 import spray.json._
 
 package object model {
-
   abstract class JsPrimitive(val name: String)
 
   case object JsStringType extends JsPrimitive("string")
   case object JsObjectType extends JsPrimitive("object")
   case object JsNumberType extends JsPrimitive("number")
+  case object JsIntegerType extends JsPrimitive("integer")
   case object JsBooleanType extends JsPrimitive("boolean")
   case object JsArrayType extends JsPrimitive("array")
 

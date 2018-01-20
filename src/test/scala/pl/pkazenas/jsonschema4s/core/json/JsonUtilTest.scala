@@ -61,6 +61,7 @@ class JsonUtilTest extends FunSuite with OneInstancePerTest {
     assertResult(("type", JsString(JsNumberType.name)))(typeField(JsNumberType))
     assertResult(("type", JsString(JsBooleanType.name)))(typeField(JsBooleanType))
     assertResult(("type", JsString(JsArrayType.name)))(typeField(JsArrayType))
+    assertResult(("type", JsString(JsIntegerType.name)))(typeField(JsIntegerType))
   }
 
   test("definitionReference") {
