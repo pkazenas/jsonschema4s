@@ -16,12 +16,6 @@ package object model {
 
   def objectField(field: String, jsFields: List[JsField]): JsField = (field, JsObject(jsFields: _*))
 
-  def arrayObject(primitive: JsPrimitive): JsValue =
-    JsObject(typeField(JsArrayType), typeProperty("items", primitive))
-
-  def arrayObject(refType: String): JsValue =
-    JsObject(typeField(JsArrayType), refProperty("items", refType))
-
   def arrayObject(jsValueType: JsValue): JsValue =
     JsObject(typeField(JsArrayType), ("items", jsValueType))
 
@@ -39,10 +33,6 @@ package object model {
   def typeField(jsonType: JsPrimitive): JsField = stringField("type", s"${jsonType.name}")
 
   def typeObject(jsonType: JsPrimitive): JsValue = JsObject(typeField(jsonType))
-
-  def typeProperty(name: String, jsonType: JsPrimitive): JsField = (name, JsObject(typeField(jsonType)))
-
-  def refProperty(name: String, typeName: String): JsField = (name, JsObject(definitionReference(typeName)))
 
   def definitionReference(typeName: String): JsField = stringField("$ref", s"#/definitions/$typeName")
 
