@@ -75,8 +75,8 @@ class ModelUtilsTest extends FunSuite with OneInstancePerTest {
       TraitType(
         "Animal",
         List(
-          CaseClassType("Cat", List(ClassField("owner", StringType))),
-          CaseClassType("Dog", List(ClassField("name", StringType))))
+          CaseClassType("Cat", List(ClassField("owner", StringType)), Some("Animal")),
+          CaseClassType("Dog", List(ClassField("name", StringType)), Some("Animal")))
       )
 
     assertResult(expected)(typeOf[Animal].toTypeDefinition)

@@ -19,8 +19,8 @@ class ApiTest extends FunSuite {
             TraitType(
               "Shape",
               List(
-                CaseClassType("Circle", List(ClassField("radius", IntType))),
-                CaseClassType("Square", List(ClassField("size", IntType)))
+                CaseClassType("Circle", List(ClassField("radius", IntType)), Some("Shape")),
+                CaseClassType("Square", List(ClassField("size", IntType)), Some("Shape"))
               )
             )),
           ClassField(
@@ -28,8 +28,8 @@ class ApiTest extends FunSuite {
             AbstractClassType(
               "Plant",
               List(
-                CaseClassType("Cactus", List(ClassField("needleCount", LongType))),
-                CaseClassType("Pine", List(ClassField("height", IntType)))
+                CaseClassType("Cactus", List(ClassField("needleCount", LongType)), Some("Plant")),
+                CaseClassType("Pine", List(ClassField("height", IntType)), Some("Plant"))
               )
             )
           )
