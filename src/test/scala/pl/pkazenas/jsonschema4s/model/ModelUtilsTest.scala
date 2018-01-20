@@ -73,6 +73,7 @@ class ModelUtilsTest extends FunSuite with OneInstancePerTest {
   test("sealed trait hierarchy parsing") {
     val expected =
       TraitType(
+        "Animal",
         List(
           CaseClassType("Cat", List(ClassField("owner", StringType))),
           CaseClassType("Dog", List(ClassField("name", StringType))))
@@ -103,17 +104,18 @@ class ModelUtilsTest extends FunSuite with OneInstancePerTest {
         "test",
         List(
           ClassField("a", CaseClassType("Test1", List(ClassField("b", CaseClassType("Test2", List(ClassField("c", IntType))))))),
-          ClassField("b", TraitType(List(CaseClassType("Test3", List(ClassField("d", StringType))))))
+          ClassField("b", TraitType("TestTrait", List(CaseClassType("Test3", List(ClassField("d", StringType))))))
         )
       )
 
     val expected =
       List(
         CaseClassType("Test1", List(ClassField("b", CaseClassType("Test2", List(ClassField("c", IntType)))))),
+        TraitType("TestTrait", List(CaseClassType("Test3", List(ClassField("d", StringType))))),
         CaseClassType("Test3", List(ClassField("d", StringType))),
         CaseClassType("Test2", List(ClassField("c", IntType))))
 
-    val actual = ModelUtils.findAllCaseClassTypes(rootType)
+    val actual = ModelUtils.findAllComplexTypes(rootType)
 
     assertResult(expected)(actual)
   }

@@ -28,6 +28,8 @@ package object model {
   def anyOfObject(jsValues: List[JsValue]): JsValue =
     JsObject(("anyOf", JsArray(jsValues: _*)))
 
+  def allOfField(jsValues: List[JsValue]): JsField = ("allOf", JsArray(jsValues: _*))
+
   def simpleObject(jsFields: List[JsField]): JsValue = JsObject(jsFields: _*)
 
   val schemaField = stringField("$schema", "http://json-schema.org/schema#")

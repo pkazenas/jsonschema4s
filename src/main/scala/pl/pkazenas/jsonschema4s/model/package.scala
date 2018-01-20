@@ -27,10 +27,13 @@ package object model {
   sealed trait ComplexType extends TypeDefinition
 
   case class CaseClassType(typeName: String,
-                           fields: List[ClassField]) extends ComplexType
+                           fields: List[ClassField],
+                           superTypeName: Option[String] = None) extends ComplexType
 
-  case class TraitType(implementations: List[CaseClassType]) extends ComplexType
-  case class AbstractClassType(implementations: List[CaseClassType]) extends ComplexType
+  case class TraitType(typeName: String,
+                       implementations: List[CaseClassType]) extends ComplexType
+  case class AbstractClassType(typeName: String,
+                               implementations: List[CaseClassType]) extends ComplexType
 
   // root model type
   case class RootType(name: String,

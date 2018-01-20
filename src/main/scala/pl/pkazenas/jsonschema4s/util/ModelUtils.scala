@@ -8,24 +8,24 @@ import pl.pkazenas.jsonschema4s.core.ModelExtractionException
 import scala.annotation.tailrec
 
 object ModelUtils {
-  def findAllCaseClassTypes(rootType: RootType): List[CaseClassType] = {
+  def findAllComplexTypes(rootType: RootType): List[ComplexType] = {
     @tailrec
-    def loop(fields: List[ClassField], accum: List[CaseClassType] = List()): List[CaseClassType] =
+    def loop(fields: List[ClassField], accum: List[ComplexType] = List()): List[ComplexType] =
       if (fields.isEmpty) accum
       else {
-        val caseClasses =
+        val complexTypes: List[ComplexType] =
           fields
             .flatMap(field => {
               field.typeDefinition match {
                 case caseClassType: CaseClassType => List(caseClassType)
-                case traitType: TraitType => traitType.implementations
-                case abstractClassType: AbstractClassType => abstractClassType.implementations
+                case traitType: TraitType => traitType :: traitType.implementations
+                case abstractClassType: AbstractClassType => abstractClassType :: abstractClassType.implementations
                 case _ => List()
               }
             })
             .distinct
 
-        loop(caseClasses.flatMap(_.fields), accum ++ caseClasses)
+        loop(complexTypes.collect{ case c: CaseClassType => c}.flatMap(_.fields), accum ++ complexTypes)
       }
 
     loop(rootType.fields).distinct
@@ -38,11 +38,11 @@ object ModelUtils {
         .map(_.map(symbol => symbol.toClassField))
         .getOrElse(List())
 
-    def sealedTraitHierarchy(implicit classPathScanner: ClasspathScanner = ClasspathScanner.default) =
+    def sealedTraitHierarchy(superTypeName: String)(implicit classPathScanner: ClasspathScanner = ClasspathScanner.default) =
       classSymbol
         .knownDirectSubclasses
         .filter(_.isCaseClass)
-        .map(symbol => CaseClassType(symbol.name.toString, symbol.asClass.classFields))
+        .map(symbol => CaseClassType(symbol.name.toString, symbol.asClass.classFields, Option(superTypeName)))
         .toList
   }
 
@@ -67,10 +67,10 @@ object ModelUtils {
         case t if t <:< typeOf[Set[_]] => ArrayType(t.dealiasedTypeArg(0).toTypeDefinition)
         case t if t <:< typeOf[Map[_, _]] => MapType(t.dealiasedTypeArg(0).toTypeDefinition, t.dealiasedTypeArg(1).toTypeDefinition)
         // complex types
-        case t if t.isCaseClass => CaseClassType(t.typeSymbol.name.toString, t.asClass.classFields)
-        case t if t.isSealedTrait => TraitType(t.asClass.sealedTraitHierarchy)
-        case t if t.isTrait => TraitType(HierarchyExtractor.findSubclasses(t))
-        case t if t.isAbstractClass => AbstractClassType(HierarchyExtractor.findSubclasses(t))
+        case t if t.isCaseClass => CaseClassType(t.typeName, t.asClass.classFields)
+        case t if t.isSealedTrait => TraitType(t.typeName, t.asClass.sealedTraitHierarchy(t.typeName))
+        case t if t.isTrait => TraitType(t.typeName, HierarchyExtractor.extractSubclasses(t, t.typeName))
+        case t if t.isAbstractClass => AbstractClassType(t.typeName, HierarchyExtractor.extractSubclasses(t, t.typeName))
         case t => throw new ModelExtractionException(s"Unsupported type encountered: ${t.typeSymbol.fullName}")
       }
     }

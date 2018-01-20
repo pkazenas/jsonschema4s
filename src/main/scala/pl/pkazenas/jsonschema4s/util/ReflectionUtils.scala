@@ -32,6 +32,8 @@ object ReflectionUtils {
 
     def dealiasedTypeArg(index: Int) = `type`.dealias.typeArgs(index)
 
+    def typeName = `type`.typeSymbol.name.toString
+
     def asJavaClass(implicit classLoader: ClassLoader): Option[Class[_]] =
       scala.util.Try(runtimeMirror(classLoader).runtimeClass(`type`)).toOption
   }

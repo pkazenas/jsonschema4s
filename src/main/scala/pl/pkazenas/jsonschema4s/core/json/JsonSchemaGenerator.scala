@@ -25,9 +25,9 @@ object JsonSchemaGenerator {
         if (isArrayType(typeDefinition)) throw new JsonSchemaException("")
         else arrayObject(typeDefinitionToJsValue(typeDefinition))
       case MapType(keyTypeDefinition, valueTypeDefinition) => ??? // TODO: figure out how to handle Maps
-      case CaseClassType(typeName, _) => definitionReferenceObject(typeName)
-      case TraitType(implementations) => anyOfObject(implementations.map(typeDefinitionToJsValue(_)))
-      case AbstractClassType(implementations) => anyOfObject(implementations.map(typeDefinitionToJsValue(_)))
+      case CaseClassType(typeName, _, _) => definitionReferenceObject(typeName)
+      case TraitType(typeName, _) => definitionReferenceObject(typeName)
+      case AbstractClassType(typeName, _) => definitionReferenceObject(typeName)
     }
 
   def classFieldToJsField(classField: ClassField): JsField =
@@ -35,15 +35,25 @@ object JsonSchemaGenerator {
 
   def caseClassToJsField(caseClassType: CaseClassType): JsField = {
     val (properties, requiredTypesArray) = classFieldsToPropertiesAndRequired(caseClassType.fields)
+    val superTypeRef: List[JsField] =
+      caseClassType
+        .superTypeName
+        .map(superTypeName => allOfField(List(definitionReferenceObject(superTypeName))))
+        .fold(List[JsField]())(t => List(t))
 
-    objectField(
-      caseClassType.typeName,
+    val fields =
       List(
         typeField(JsObjectType),
         properties,
-        requiredTypesArray
-      ))
+        requiredTypesArray)
+
+    objectField(
+      caseClassType.typeName,
+      fields ++ superTypeRef)
   }
+
+  def nestedTypeToJsField(typeName: String, implementations: List[CaseClassType]): JsField =
+    (typeName, anyOfObject(implementations.map(typeDefinitionToJsValue(_))))
 
   def classFieldsToPropertiesAndRequired(classFields: List[ClassField]): (JsField, JsField) ={
     val jsFields = classFields.map(classFieldToJsField _)
@@ -55,7 +65,14 @@ object JsonSchemaGenerator {
 
   def generate(rootType: RootType): JsValue = {
     val (properties, requiredTypesArray) = classFieldsToPropertiesAndRequired(rootType.fields)
-    val typesDefinitions = ModelUtils.findAllCaseClassTypes(rootType).map(caseClassToJsField _)
+    val typesDefinitions =
+      ModelUtils
+        .findAllComplexTypes(rootType)
+        .map(complexType => complexType match {
+          case caseClassType: CaseClassType => caseClassToJsField(caseClassType)
+          case TraitType(typeName, implementations) => nestedTypeToJsField(typeName, implementations)
+          case AbstractClassType(typeName, implementations) => nestedTypeToJsField(typeName, implementations)
+        })
 
     simpleObject(
       List(
