@@ -1,8 +1,10 @@
 name := "jsonschema4s"
 
-version := "0.1"
+version := "0.1.0"
 
 //scalaVersion := "2.12.4"
+
+releaseIgnoreUntrackedFiles := true
 
 crossScalaVersions := Seq("2.11.8", "2.12.4")
 
