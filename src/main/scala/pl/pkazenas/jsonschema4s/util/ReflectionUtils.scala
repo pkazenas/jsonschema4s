@@ -3,6 +3,15 @@ package pl.pkazenas.jsonschema4s.util
 import scala.reflect.runtime.universe._
 
 object ReflectionUtils {
+  final val intType = typeOf[Int].typeFullName
+  final val byteType = typeOf[Byte].typeFullName
+  final val booleanType = typeOf[Boolean].typeFullName
+  final val charType = typeOf[Char].typeFullName
+  final val shortType = typeOf[Short].typeFullName
+  final val longType = typeOf[Long].typeFullName
+  final val floatType = typeOf[Float].typeFullName
+  final val doubleType = typeOf[Double].typeFullName
+  final val stringType = typeOf[String].typeFullName
 
   implicit class SymbolImplicits(symbol: Symbol) {
     def isCaseClass = if (symbol.isClass) symbol.asClass.isCaseClass else false
@@ -33,6 +42,8 @@ object ReflectionUtils {
     def dealiasedTypeArg(index: Int) = `type`.dealias.typeArgs(index)
 
     def typeName = `type`.typeSymbol.name.toString
+
+    def typeFullName = `type`.typeSymbol.fullName.toString
 
     def asJavaClass(implicit classLoader: ClassLoader): Option[Class[_]] =
       scala.util.Try(runtimeMirror(classLoader).runtimeClass(`type`)).toOption

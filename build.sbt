@@ -1,12 +1,14 @@
 name := "jsonschema4s"
 
-version := "0.1.0"
+organization := "pl.pkazenas"
 
-//scalaVersion := "2.12.4"
+version := "0.1.1"
 
-releaseIgnoreUntrackedFiles := true
+scalaVersion := "2.11.12"
 
-crossScalaVersions := Seq("2.11.8", "2.12.4")
+sbtVersion := "0.13.16"
+
+//crossScalaVersions := Seq("2.11.8", "2.12.4")
 
 libraryDependencies ++= Seq(
   "org.scala-lang" % "scala-reflect" % scalaVersion.value,

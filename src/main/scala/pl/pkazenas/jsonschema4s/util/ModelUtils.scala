@@ -54,22 +54,22 @@ object ModelUtils {
     final def toTypeDefinition(implicit classPathScanner: ClasspathScanner = ClasspathScanner.default): TypeDefinition = {
       `type` match {
         // primitive types
-        case t if t =:= typeOf[Boolean] => BooleanType
-        case t if t =:= typeOf[Byte] => ByteType
-        case t if t =:= typeOf[Char] => CharType
-        case t if t =:= typeOf[Short] => ShortType
-        case t if t =:= typeOf[Int] => IntType
-        case t if t =:= typeOf[Long] => LongType
-        case t if t =:= typeOf[Float] => FloatType
-        case t if t =:= typeOf[Double] => DoubleType
+        case t if t <:< typeOf[scala.Boolean] => BooleanType
+        case t if t <:< typeOf[scala.Byte] => ByteType
+        case t if t <:< typeOf[scala.Char] => CharType
+        case t if t <:< typeOf[scala.Short] => ShortType
+        case t if t <:< typeOf[scala.Int] => IntType
+        case t if t <:< typeOf[scala.Long] => LongType
+        case t if t <:< typeOf[scala.Float] => FloatType
+        case t if t <:< typeOf[scala.Double] => DoubleType
         // other builtin types
-        case t if t =:= typeOf[String] => StringType
-        case t if t <:< typeOf[Option[_]] => OptionalType(t.dealias.typeArgs.head.toTypeDefinition)
+        case t if t <:< typeOf[String] => StringType
+        case t if t <:< typeOf[scala.Option[_]] => OptionalType(t.dealias.typeArgs.head.toTypeDefinition)
         //collection types
-        case t if t <:< typeOf[Array[_]] => ArrayType(t.dealiasedTypeArg(0).toTypeDefinition)
-        case t if t <:< typeOf[Seq[_]] => ArrayType(t.dealiasedTypeArg(0).toTypeDefinition)
-        case t if t <:< typeOf[Set[_]] => ArrayType(t.dealiasedTypeArg(0).toTypeDefinition)
-        case t if t <:< typeOf[Map[_, _]] => MapType(t.dealiasedTypeArg(0).toTypeDefinition, t.dealiasedTypeArg(1).toTypeDefinition)
+        case t if t <:< typeOf[scala.Array[_]] => ArrayType(t.dealiasedTypeArg(0).toTypeDefinition)
+        case t if t <:< typeOf[scala.Seq[_]] => ArrayType(t.dealiasedTypeArg(0).toTypeDefinition)
+        case t if t <:< typeOf[scala.collection.Set[_]] => ArrayType(t.dealiasedTypeArg(0).toTypeDefinition)
+        case t if t <:< typeOf[scala.collection.Map[_, _]] => MapType(t.dealiasedTypeArg(0).toTypeDefinition, t.dealiasedTypeArg(1).toTypeDefinition)
         // complex types
         case t if t.isCaseClass => CaseClassType(t.typeName, t.asClass.classFields)
         case t if t.isSealedTrait => TraitType(t.typeName, t.asClass.sealedTraitHierarchy(t.typeName))
@@ -78,6 +78,36 @@ object ModelUtils {
         case t => throw new ModelExtractionException(s"Unsupported type encountered: ${t.typeSymbol.fullName}")
       }
     }
+
+//    final def toTypeDefinition(implicit classPathScanner: ClasspathScanner = ClasspathScanner.default): TypeDefinition = {
+////      def convertOtherTypes()
+//      val dealiasedType = `type`.dealias
+//      dealiasedType.typeFullName match {
+//        // primitive types
+//        case `booleanType` => BooleanType
+//        case `byteType` => ByteType
+//        case `charType` => CharType
+//        case `shortType` => ShortType
+//        case `intType` => IntType
+//        case `longType` => LongType
+//        case `floatType` => FloatType
+//        case `doubleType` => DoubleType
+//        // other builtin types
+////        case t if t <:< typeOf[String] => StringType
+////        case t if t <:< typeOf[scala.Option[_]] => OptionalType(t.dealias.typeArgs.head.toTypeDefinition)
+////        //collection types
+////        case t if t <:< typeOf[scala.Array[_]] => ArrayType(t.dealiasedTypeArg(0).toTypeDefinition)
+////        case t if t <:< typeOf[scala.Seq[_]] => ArrayType(t.dealiasedTypeArg(0).toTypeDefinition)
+////        case t if t <:< typeOf[scala.collection.Set[_]] => ArrayType(t.dealiasedTypeArg(0).toTypeDefinition)
+////        case t if t <:< typeOf[scala.collection.Map[_, _]] => MapType(t.dealiasedTypeArg(0).toTypeDefinition, t.dealiasedTypeArg(1).toTypeDefinition)
+////        // complex types
+////        case t if t.isCaseClass => CaseClassType(t.typeName, t.asClass.classFields)
+////        case t if t.isSealedTrait => TraitType(t.typeName, t.asClass.sealedTraitHierarchy(t.typeName))
+////        case t if t.isTrait => TraitType(t.typeName, HierarchyExtractor.extractSubclasses(t, t.typeName))
+////        case t if t.isAbstractClass => AbstractClassType(t.typeName, HierarchyExtractor.extractSubclasses(t, t.typeName))
+//        case t => throw new ModelExtractionException(s"Unsupported type encountered: ${dealiasedType.typeFullName}")
+//      }
+//    }
   }
 
   implicit class SymbolModelImplicits(symbol: Symbol) {

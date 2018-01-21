@@ -22,6 +22,9 @@ package object jsonschema4s {
     def asJsonSchema[T](implicit tag: TypeTag[T], apiConfig: ApiConfig = ApiConfig()): String =
       modelAsJsonSchema(asModel(tag))
 
+    def typeAsJsonSchema(`type`: Type)(implicit apiConfig: ApiConfig = ApiConfig()): String =
+      modelAsJsonSchema(toModel(`type`))
+
     def modelAsJsonSchema(model: RootType): String = JsonSchemaPrinter(JsonSchemaGenerator.generate(model))
   }
 }
