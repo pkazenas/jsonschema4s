@@ -1,11 +1,8 @@
 name := "jsonschema4s"
+organization := "pl.pkazenas"
+version := "0.1.1"
 
-version := "0.1.0"
-
-//scalaVersion := "2.12.4"
-
-releaseIgnoreUntrackedFiles := true
-
+scalaVersion := "2.12.4"
 crossScalaVersions := Seq("2.11.8", "2.12.4")
 
 libraryDependencies ++= Seq(

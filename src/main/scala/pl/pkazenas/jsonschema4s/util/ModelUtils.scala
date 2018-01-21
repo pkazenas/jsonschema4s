@@ -29,7 +29,7 @@ object ModelUtils {
             })
             .distinct
 
-        loop(complexTypes.collect{ case c: CaseClassType => c}.flatMap(_.fields), accum ++ complexTypes)
+        loop(complexTypes.collect { case c: CaseClassType => c }.flatMap(_.fields), accum ++ complexTypes)
       }
 
     loop(rootType.fields).distinct
@@ -50,33 +50,87 @@ object ModelUtils {
         .toList
   }
 
+  object TypeNames {
+    val booleanName = typeOf[Boolean].dealiasedFullName
+    val byteName = typeOf[Byte].dealiasedFullName
+    val charName = typeOf[Char].dealiasedFullName
+    val shortName = typeOf[Short].dealiasedFullName
+    val intName = typeOf[Int].dealiasedFullName
+    val longName = typeOf[Long].dealiasedFullName
+    val floatName = typeOf[Float].dealiasedFullName
+    val doubleName = typeOf[Double].dealiasedFullName
+    val stringName = typeOf[String].dealiasedFullName
+    val optionName = typeOf[Option[_]].dealiasedFullName
+    val arrayName = typeOf[Array[_]].dealiasedFullName
+    val listName = typeOf[List[_]].dealiasedFullName
+    val setName = typeOf[Set[_]].dealiasedFullName
+    val mapName = typeOf[Map[_, _]].dealiasedFullName
+  }
+
+  import TypeNames._
+
   implicit class TypeModelImplicits(`type`: Type) {
     final def toTypeDefinition(implicit classPathScanner: ClasspathScanner = ClasspathScanner.default): TypeDefinition = {
-      `type` match {
-        // primitive types
-        case t if t =:= typeOf[Boolean] => BooleanType
-        case t if t =:= typeOf[Byte] => ByteType
-        case t if t =:= typeOf[Char] => CharType
-        case t if t =:= typeOf[Short] => ShortType
-        case t if t =:= typeOf[Int] => IntType
-        case t if t =:= typeOf[Long] => LongType
-        case t if t =:= typeOf[Float] => FloatType
-        case t if t =:= typeOf[Double] => DoubleType
-        // other builtin types
-        case t if t =:= typeOf[String] => StringType
-        case t if t <:< typeOf[Option[_]] => OptionalType(t.dealias.typeArgs.head.toTypeDefinition)
-        //collection types
-        case t if t <:< typeOf[Array[_]] => ArrayType(t.dealiasedTypeArg(0).toTypeDefinition)
-        case t if t <:< typeOf[Seq[_]] => ArrayType(t.dealiasedTypeArg(0).toTypeDefinition)
-        case t if t <:< typeOf[Set[_]] => ArrayType(t.dealiasedTypeArg(0).toTypeDefinition)
-        case t if t <:< typeOf[Map[_, _]] => MapType(t.dealiasedTypeArg(0).toTypeDefinition, t.dealiasedTypeArg(1).toTypeDefinition)
-        // complex types
-        case t if t.isCaseClass => CaseClassType(t.typeName, t.asClass.classFields)
-        case t if t.isSealedTrait => TraitType(t.typeName, t.asClass.sealedTraitHierarchy(t.typeName))
-        case t if t.isTrait => TraitType(t.typeName, HierarchyExtractor.extractSubclasses(t, t.typeName))
-        case t if t.isAbstractClass => AbstractClassType(t.typeName, HierarchyExtractor.extractSubclasses(t, t.typeName))
-        case t => throw new ModelExtractionException(s"Unsupported type encountered: ${t.typeSymbol.fullName}")
+      println(s"toTypeDefinition: ${`type`}, ${`type`.typeSymbol.fullName}")
+
+      val dealiasedType = `type`.dealias
+
+      def matchComplexType =
+        dealiasedType match {
+          // complex types
+          case t if t.isCaseClass => CaseClassType(t.typeName, t.asClass.classFields)
+          case t if t.isSealedTrait => TraitType(t.typeName, t.asClass.sealedTraitHierarchy(t.typeName))
+          case t if t.isTrait => TraitType(t.typeName, HierarchyExtractor.extractSubclasses(t, t.typeName))
+          case t if t.isAbstractClass => AbstractClassType(t.typeName, HierarchyExtractor.extractSubclasses(t, t.typeName))
+          case t => throw new ModelExtractionException(s"Unsupported type encountered: ${t.typeSymbol.fullName}")
+        }
+
+      def arrayFromType = ArrayType(dealiasedType.typeArgs(0).toTypeDefinition)
+
+      val fullName = `type`.dealiasedFullName
+      fullName match {
+        case `booleanName` => BooleanType
+        case `byteName` => ByteType
+        case `charName` => CharType
+        case `shortName` => ShortType
+        case `intName` => IntType
+        case `longName` => LongType
+        case `floatName` => FloatType
+        case `doubleName` => DoubleType
+        case `stringName` => StringType
+        case `optionName` => OptionalType(dealiasedType.typeArgs.head.toTypeDefinition)
+        case `arrayName` => arrayFromType
+        case `listName` => arrayFromType
+        case `setName` => arrayFromType
+        case `mapName` => MapType(dealiasedType.typeArgs(0).toTypeDefinition, dealiasedType.typeArgs(1).toTypeDefinition)
+        case _ => matchComplexType
       }
+
+//      `type` match {
+//        // primitive types
+//        case t if t.typeSymbol == typeOf[Boolean].typeSymbol => BooleanType
+//        case t if t.typeSymbol == typeOf[Byte].typeSymbol => ByteType
+//        case t if t.typeSymbol == typeOf[Char].typeSymbol => CharType
+//        case t if t.typeSymbol == typeOf[Short].typeSymbol => ShortType
+//        case t if t.typeSymbol == typeOf[Int].typeSymbol => IntType
+//        case t if t.typeSymbol == typeOf[Long].typeSymbol => LongType
+//        case t if t.typeSymbol == typeOf[Float].typeSymbol => FloatType
+//        case t if t.typeSymbol == typeOf[Double].typeSymbol => DoubleType
+//        // other builtin types
+//        case t if t =:= typeOf[String] => StringType
+//        case t if t <:< typeOf[Option[_]] => OptionalType(t.dealias.typeArgs.head.toTypeDefinition)
+//        //collection types
+//        case t if t <:< typeOf[Array[_]] => ArrayType(t.dealiasedTypeArg(0).toTypeDefinition)
+//        case t if t <:< typeOf[Seq[_]] => ArrayType(t.dealiasedTypeArg(0).toTypeDefinition)
+//        case t if t <:< typeOf[Set[_]] => ArrayType(t.dealiasedTypeArg(0).toTypeDefinition)
+//        case t if t <:< typeOf[Map[_, _]] => MapType(t.dealiasedTypeArg(0).toTypeDefinition, t.dealiasedTypeArg(1).toTypeDefinition)
+//        // complex types
+//        case t if t.isCaseClass => CaseClassType(t.typeName, t.asClass.classFields)
+//        case t if t.isSealedTrait => TraitType(t.typeName, t.asClass.sealedTraitHierarchy(t.typeName))
+//        case t if t.isTrait => TraitType(t.typeName, HierarchyExtractor.extractSubclasses(t, t.typeName))
+//        case t if t.isAbstractClass => AbstractClassType(t.typeName, HierarchyExtractor.extractSubclasses(t, t.typeName))
+//        case t => throw new ModelExtractionException(s"Unsupported type encountered: ${t.typeSymbol.fullName}")
+//      }
     }
   }
 
