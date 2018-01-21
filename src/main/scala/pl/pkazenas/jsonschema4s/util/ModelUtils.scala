@@ -13,6 +13,23 @@ object ModelUtils {
   def isArrayType(typeDefinition: TypeDefinition) = typeDefinition.isInstanceOf[ArrayType]
 
   def findAllComplexTypes(rootType: RootType): List[ComplexType] = {
+    def extractComplexTypes(typeDefinition: TypeDefinition): List[ComplexType] =
+      typeDefinition match {
+        case caseClassType: CaseClassType => List(caseClassType)
+        case traitType: TraitType => traitType :: traitType.implementations
+        case abstractClassType: AbstractClassType => abstractClassType :: abstractClassType.implementations
+        case _ => List()
+      }
+
+    def extractWrappedTypes(typeDefinition: TypeDefinition): List[ComplexType] = {
+      typeDefinition match {
+        case optional @ OptionalType(wrapped) => extractComplexTypes(wrapped)
+        case array @ ArrayType(wrapped) => extractComplexTypes(wrapped)
+        case map @ MapType(key, value) => extractComplexTypes(key) ++ extractComplexTypes(value)
+        case _ => List()
+      }
+    }
+
     @tailrec
     def loop(fields: List[ClassField], accum: List[ComplexType] = List()): List[ComplexType] =
       if (fields.isEmpty) accum
@@ -21,10 +38,8 @@ object ModelUtils {
           fields
             .flatMap(field => {
               field.typeDefinition match {
-                case caseClassType: CaseClassType => List(caseClassType)
-                case traitType: TraitType => traitType :: traitType.implementations
-                case abstractClassType: AbstractClassType => abstractClassType :: abstractClassType.implementations
-                case _ => List()
+                case complexType: ComplexType => extractComplexTypes(complexType)
+                case simpleType => extractWrappedTypes(simpleType)
               }
             })
             .distinct

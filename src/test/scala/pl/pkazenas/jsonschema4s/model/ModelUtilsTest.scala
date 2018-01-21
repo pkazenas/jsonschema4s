@@ -104,7 +104,9 @@ class ModelUtilsTest extends FunSuite with OneInstancePerTest {
         "test",
         List(
           ClassField("a", CaseClassType("Test1", List(ClassField("b", CaseClassType("Test2", List(ClassField("c", IntType))))))),
-          ClassField("b", TraitType("TestTrait", List(CaseClassType("Test3", List(ClassField("d", StringType))))))
+          ClassField("b", TraitType("TestTrait", List(CaseClassType("Test3", List(ClassField("d", StringType)))))),
+          ClassField("optional", OptionalType(CaseClassType("wrappedClass", List(ClassField("c", StringType))))),
+          ClassField("array", ArrayType(TraitType("wrappedTrait", List(CaseClassType("wrappedImpl", List(ClassField("g", LongType)))))))
         )
       )
 
@@ -113,10 +115,14 @@ class ModelUtilsTest extends FunSuite with OneInstancePerTest {
         CaseClassType("Test1", List(ClassField("b", CaseClassType("Test2", List(ClassField("c", IntType)))))),
         TraitType("TestTrait", List(CaseClassType("Test3", List(ClassField("d", StringType))))),
         CaseClassType("Test3", List(ClassField("d", StringType))),
-        CaseClassType("Test2", List(ClassField("c", IntType))))
+        CaseClassType("Test2", List(ClassField("c", IntType))),
+        CaseClassType("wrappedClass", List(ClassField("c", StringType))),
+        TraitType("wrappedTrait", List(CaseClassType("wrappedImpl", List(ClassField("g", LongType))))),
+        CaseClassType("wrappedImpl", List(ClassField("g", LongType)))
+      )
 
     val actual = ModelUtils.findAllComplexTypes(rootType)
 
-    assertResult(expected)(actual)
+    assertResult(expected.toSet)(actual.toSet)
   }
 }
