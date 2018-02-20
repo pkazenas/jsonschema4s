@@ -12,13 +12,18 @@ class ModelToJsonTest extends FunSuite with OneInstancePerTest {
   }
 
   test("typeDefinitionToJsValue - integral types") {
-    val integralTypes = List(ByteType, CharType, ShortType, IntType, LongType)
+    val integralTypes = List(ByteType, CharType, ShortType, IntType)
 
     integralTypes
       .foreach(integralType => {
         assertResult(JsObject(("type", JsString("integer"))))(typeDefinitionToJsValue(integralType))
       })
   }
+
+  test("typeDefinitionToJsValue - long type") {
+    assertResult(JsObject(("type", JsString("integer")), ("format", JsString("int64"))))(typeDefinitionToJsValue(LongType))
+  }
+
 
   test("typeDefinitionToJsValue - number types") {
     val numberTypes = List(FloatType, DoubleType)

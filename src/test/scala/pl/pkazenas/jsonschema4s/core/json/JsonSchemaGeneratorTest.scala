@@ -25,7 +25,7 @@ class JsonSchemaGeneratorTest extends FunSuite with OneInstancePerTest {
         ("properties",
           JsObject(
             ("a", JsObject(("type", JsString("string")))),
-            ("b", JsObject(("type", JsString("array")), ("items", JsObject(("type", JsString("integer")))))),
+            ("b", JsObject(("type", JsString("array")), ("items", JsObject(("type", JsString("integer")), ("format", JsString("int64")))))),
             ("c", JsObject(("type", JsString("boolean"))))
           )
         ),
@@ -94,7 +94,7 @@ class JsonSchemaGeneratorTest extends FunSuite with OneInstancePerTest {
                 ("type", JsString("object")),
                 ("properties",
                   JsObject(
-                    ("lives", JsObject(("type", JsString("integer"))))
+                    ("lives", JsObject(("type", JsString("integer")), ("format", JsString("int64"))))
                   )
                 ),
                 ("required", JsArray(JsString("lives"))),

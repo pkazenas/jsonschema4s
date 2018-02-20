@@ -9,7 +9,8 @@ object ModelToJson {
   def typeDefinitionToJsValue(typeDefinition: TypeDefinition): JsValue =
     typeDefinition match {
       case BooleanType => typeObject(JsBooleanType)
-      case ByteType | CharType | ShortType | IntType | LongType => typeObject(JsIntegerType)
+      case ByteType | CharType | ShortType | IntType => typeObject(JsIntegerType)
+      case LongType => typeObjectWithFormat(JsIntegerType, Int64TypeFormat)
       case FloatType | DoubleType => typeObject(JsNumberType)
       case StringType => typeObject(JsStringType)
       case OptionalType(wrappedType) =>
