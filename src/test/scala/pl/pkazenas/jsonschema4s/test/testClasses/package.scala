@@ -51,3 +51,15 @@ case class AnnotatedClass1(int: Int)
 @JsonDataContract
 case class AnnotatedClass2(string: String)
 
+abstract class DataType
+
+@Description("data 1")
+case class Data1(@Description("name") name: String) extends DataType
+
+@Description("data 2")
+case class Data2(@Description("value") value: Int) extends DataType
+
+@Description("request")
+case class Request(@Description("data type")
+                   data: DataType)
+

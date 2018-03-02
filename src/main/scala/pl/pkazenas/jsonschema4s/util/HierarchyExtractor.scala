@@ -10,8 +10,14 @@ object HierarchyExtractor {
     classpathScanner.findSubclasses(`type`)
       .filter(_.isCaseClass)
       .map(t => {
-        val symbol = t.typeSymbol
-        CaseClassType(symbol.name.toString, symbol.asClass.classFields, Option(superTypeName))
+        val symbol = t.asClass
+
+        val typeAnnotations = symbol.getAnnotationsValues
+        CaseClassType(
+          typeName = symbol.name.toString,
+          fields = symbol.asClass.classFields,
+          superTypeName = Option(superTypeName),
+          description = typeAnnotations.description.map(_.value))
       })
   }
 }
