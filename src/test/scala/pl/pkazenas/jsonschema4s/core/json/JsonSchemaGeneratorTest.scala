@@ -20,6 +20,7 @@ class JsonSchemaGeneratorTest extends FunSuite with OneInstancePerTest {
     val expected =
       JsObject(
         ("$id", JsString("simpleType")),
+        ("title", JsString("simpleType")),
         ("$schema", JsString("http://json-schema.org/schema#")),
         ("type", JsString("object")),
         ("properties",
@@ -56,6 +57,7 @@ class JsonSchemaGeneratorTest extends FunSuite with OneInstancePerTest {
     val expected =
       JsObject(
         ("$id", JsString("complexType")),
+        ("title", JsString("complexType")),
         ("$schema", JsString("http://json-schema.org/schema#")),
         ("type", JsString("object")),
         ("properties",
