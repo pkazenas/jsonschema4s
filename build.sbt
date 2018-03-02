@@ -1,6 +1,6 @@
 name := "jsonschema4s"
 organization := "pl.pkazenas"
-version := "0.3.1"
+version := "0.3.2"
 
 crossScalaVersions := Seq("2.11.8", "2.12.4")
 scalaVersion := "2.12.4"
