@@ -43,3 +43,11 @@ case class Pine(height: Int) extends Plant
 case class Cactus(needleCount: Long) extends Plant
 
 case class WrappedAbstracts(shape: Shape, plant: Plant)
+
+// annotation test
+@JsonDataContract
+case class AnnotatedClass1(int: Int)
+
+@JsonDataContract
+case class AnnotatedClass2(string: String)
+

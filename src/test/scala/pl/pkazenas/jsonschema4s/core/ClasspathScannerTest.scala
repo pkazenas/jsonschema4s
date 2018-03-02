@@ -1,6 +1,7 @@
 package pl.pkazenas.jsonschema4s.core
 
 import org.scalatest.{FunSuite, OneInstancePerTest}
+import pl.pkazenas.jsonschema4s.annotation.JsonDataContract
 import pl.pkazenas.jsonschema4s.test._
 import pl.pkazenas.jsonschema4s.util.ClasspathScanner
 
@@ -22,5 +23,10 @@ class ClasspathScannerTest extends FunSuite with OneInstancePerTest {
     val actual = scanner.findSubclasses(typeOf[Plant]).toSet
 
     assertResult(expected)(actual)
+  }
+
+  test("Scan for annotated classes") {
+    val expected = Set(typeOf[AnnotatedClass2], typeOf[AnnotatedClass1])
+    assertResult(expected)(scanner.findAnnotatedTypes(classOf[JsonDataContract]).toSet)
   }
 }
