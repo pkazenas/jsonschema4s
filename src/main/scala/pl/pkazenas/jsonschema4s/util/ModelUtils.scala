@@ -4,7 +4,7 @@ import scala.reflect.runtime.universe._
 import pl.pkazenas.jsonschema4s.model._
 import ReflectionUtils._
 import pl.pkazenas.jsonschema4s.core.ModelExtractionException
-
+import pl.pkazenas.jsonschema4s.annotation.Description
 import scala.annotation.tailrec
 
 object ModelUtils {
@@ -23,9 +23,9 @@ object ModelUtils {
 
     def extractWrappedTypes(typeDefinition: TypeDefinition): List[ComplexType] = {
       typeDefinition match {
-        case optional @ OptionalType(wrapped) => extractComplexTypes(wrapped)
-        case array @ ArrayType(wrapped) => extractComplexTypes(wrapped)
-        case map @ MapType(key, value) => extractComplexTypes(key) ++ extractComplexTypes(value)
+        case optional@OptionalType(wrapped) => extractComplexTypes(wrapped)
+        case array@ArrayType(wrapped) => extractComplexTypes(wrapped)
+        case map@MapType(key, value) => extractComplexTypes(key) ++ extractComplexTypes(value)
         case _ => List()
       }
     }
@@ -88,15 +88,20 @@ object ModelUtils {
     final def toTypeDefinition(implicit classPathScanner: ClasspathScanner = ClasspathScanner.default): TypeDefinition = {
       val dealiasedType = `type`.dealias
 
-      def matchComplexType =
+      def matchComplexType = {
+        // extract supported type annotations (right now it's only description)
+        val typeAnnotations = dealiasedType.typeSymbol.getAnnotationsValues
+        val description = typeAnnotations.description.map(_.value)
+
         dealiasedType match {
           // complex types
-          case t if t.isCaseClass => CaseClassType(t.typeName, t.asClass.classFields)
-          case t if t.isSealedTrait => TraitType(t.typeName, t.asClass.sealedTraitHierarchy(t.typeName))
-          case t if t.isTrait => TraitType(t.typeName, HierarchyExtractor.extractSubclasses(t, t.typeName))
-          case t if t.isAbstractClass => AbstractClassType(t.typeName, HierarchyExtractor.extractSubclasses(t, t.typeName))
+          case t if t.isCaseClass => CaseClassType(t.typeName, t.asClass.classFields, description)
+          case t if t.isSealedTrait => TraitType(t.typeName, t.asClass.sealedTraitHierarchy(t.typeName), description)
+          case t if t.isTrait => TraitType(t.typeName, HierarchyExtractor.extractSubclasses(t, t.typeName), description)
+          case t if t.isAbstractClass => AbstractClassType(t.typeName, HierarchyExtractor.extractSubclasses(t, t.typeName), description)
           case t => throw new ModelExtractionException(s"Unsupported type encountered: ${t.typeSymbol.fullName}")
         }
+      }
 
       def arrayFromType = ArrayType(dealiasedType.typeArgs(0).toTypeDefinition)
 
@@ -123,7 +128,11 @@ object ModelUtils {
 
   implicit class SymbolModelImplicits(symbol: Symbol) {
     def toClassField(implicit classPathScanner: ClasspathScanner = ClasspathScanner.default): ClassField = {
-      ClassField(symbol.name.toString, symbol.typeSignature.toTypeDefinition)
+      val annotations = symbol.getAnnotationsValues
+      ClassField(
+        name = symbol.name.toString,
+        typeDefinition = symbol.typeSignature.toTypeDefinition,
+        description = annotations.description.map(_.value))
     }
   }
 

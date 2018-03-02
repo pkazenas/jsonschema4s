@@ -13,4 +13,21 @@ class ModelExtractorTest extends FunSuite with OneInstancePerTest {
     val extracted = ModelExtractor.extract(typeOf[A])
     assertResult(RootType("A", List(ClassField("a", StringType), ClassField("b", IntType))))(extracted)
   }
+
+  test("extract class with description annotations") {
+    val extracted = ModelExtractor.extract(typeOf[DescriptionTest])
+
+    val expected =
+      RootType(
+        name = "DescriptionTest",
+        description = Some("test class"),
+        fields =
+          List(
+            ClassField("string", StringType, description = Some("test string")),
+            ClassField("int", IntType, description = Some("test int"))
+          )
+      )
+
+    assertResult(expected)(extracted)
+  }
 }

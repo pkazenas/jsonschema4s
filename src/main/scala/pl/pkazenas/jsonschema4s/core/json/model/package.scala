@@ -20,6 +20,8 @@ package object model {
 
   def stringField(field: String, value: String): JsField = (field, JsString(value))
 
+  def descriptionField(value: String) = stringField("description", value)
+
   def objectField(field: String, jsFields: List[JsField]): JsField = (field, JsObject(jsFields: _*))
 
   def arrayObject(jsValueType: JsValue): JsValue =
@@ -35,6 +37,8 @@ package object model {
   val schemaField = stringField("$schema", "http://json-schema.org/schema#")
 
   def schemaId(id: String): JsField = stringField("$id", s"$id")
+
+  def schemaTitle(title: String): JsField = stringField("title", title)
 
   def typeField(jsonType: JsPrimitive): JsField = stringField("type", s"${jsonType.name}")
 

@@ -18,13 +18,20 @@ object ModelToJson {
         else typeDefinitionToJsValue(wrappedType)
       case ArrayType(typeDefinition) => arrayObject(typeDefinitionToJsValue(typeDefinition))
       case MapType(keyTypeDefinition, valueTypeDefinition) => ??? // TODO: figure out how to handle Maps
-      case CaseClassType(typeName, _, _) => definitionReferenceObject(typeName)
-      case TraitType(typeName, _) => definitionReferenceObject(typeName)
-      case AbstractClassType(typeName, _) => definitionReferenceObject(typeName)
+      case CaseClassType(typeName, _, _, _) => definitionReferenceObject(typeName)
+      case TraitType(typeName, _, _) => definitionReferenceObject(typeName)
+      case AbstractClassType(typeName, _, _) => definitionReferenceObject(typeName)
     }
 
-  def classFieldToJsField(classField: ClassField): JsField =
-    (classField.name, typeDefinitionToJsValue(classField.typeDefinition))
+  def classFieldToJsField(classField: ClassField): JsField = {
+    val jsValue = typeDefinitionToJsValue(classField.typeDefinition).asJsObject
+    val description = classField.description.map(descriptionField(_))
+
+    val withDescription =
+      description.fold(jsValue)(description => jsValue.copy(fields = jsValue.fields + description))
+
+    (classField.name, withDescription)
+  }
 
   def caseClassToJsField(caseClassType: CaseClassType): JsField = {
     val (properties, requiredTypesArray) = classFieldsToPropertiesAndRequired(caseClassType.fields)
@@ -40,15 +47,21 @@ object ModelToJson {
         properties,
         requiredTypesArray)
 
+    val description =
+      caseClassType
+        .description
+        .map(v => List(descriptionField(v)))
+        .getOrElse(List())
+
     objectField(
       caseClassType.typeName,
-      fields ++ superTypeRef)
+      fields ++ superTypeRef ++ description)
   }
 
   def nestedTypeToJsField(typeName: String, implementations: List[CaseClassType]): JsField =
     (typeName, anyOfObject(implementations.map(typeDefinitionToJsValue(_))))
 
-  def classFieldsToPropertiesAndRequired(classFields: List[ClassField]): (JsField, JsField) ={
+  def classFieldsToPropertiesAndRequired(classFields: List[ClassField]): (JsField, JsField) = {
     val jsFields = classFields.map(classFieldToJsField _)
     val requiredFieldsArray =
       requiredArray(classFields.filter(cf => !isOptionalType(cf.typeDefinition)).map(_.name))

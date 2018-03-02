@@ -1,5 +1,8 @@
 package pl.pkazenas.jsonschema4s.util
 
+import pl.pkazenas.jsonschema4s.annotation.{AnnotationsValues, Description}
+
+import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
 object ReflectionUtils {
@@ -15,6 +18,25 @@ object ReflectionUtils {
 
     def asClassOpt: Option[ClassSymbol] = scala.util.Try(symbol.asClass).toOption
 
+    def getAnnotationsValues: AnnotationsValues = {
+      def findAnnotation[T: TypeTag] = {
+        symbol.annotations.find(ann => ann.tree.tpe <:< typeOf[T])
+      }
+
+      val description = {
+        findAnnotation[Description]
+          .flatMap(ann =>
+            ann.tree.children
+              .tail
+              .collect { case Literal(Constant(description: String)) => Description(description) }
+              .headOption
+          )
+      }
+
+      AnnotationsValues(
+        description = description
+      )
+    }
   }
 
   implicit class TypeImplicits(`type`: Type) {

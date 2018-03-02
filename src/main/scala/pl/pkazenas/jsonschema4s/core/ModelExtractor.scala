@@ -20,10 +20,12 @@ object ModelExtractor {
   private def extractCaseClass(`type`: Type)(implicit classPathScanner: ClasspathScanner = ClasspathScanner.default): RootType = {
     val name = `type`.typeSymbol.name.toString
     val members = extractFields(`type`)
+    val annotations = `type`.typeSymbol.getAnnotationsValues
 
     RootType(
       name = name,
-      fields = members)
+      fields = members,
+      description = annotations.description.map(_.value))
   }
 
   def extract(`type`: Type)(implicit classPathScanner: ClasspathScanner = ClasspathScanner.default): RootType =

@@ -5,7 +5,8 @@ package object model {
   sealed trait TypeDefinition
 
   case class ClassField(name: String,
-                        typeDefinition: TypeDefinition)
+                        typeDefinition: TypeDefinition,
+                        description: Option[String] = None)
 
   // simple types
   case object BooleanType extends TypeDefinition
@@ -28,14 +29,19 @@ package object model {
 
   case class CaseClassType(typeName: String,
                            fields: List[ClassField],
-                           superTypeName: Option[String] = None) extends ComplexType
+                           superTypeName: Option[String] = None,
+                           description: Option[String] = None) extends ComplexType
 
   case class TraitType(typeName: String,
-                       implementations: List[CaseClassType]) extends ComplexType
+                       implementations: List[CaseClassType],
+                       description: Option[String] = None) extends ComplexType
+
   case class AbstractClassType(typeName: String,
-                               implementations: List[CaseClassType]) extends ComplexType
+                               implementations: List[CaseClassType],
+                               description: Option[String] = None) extends ComplexType
 
   // root model type
   case class RootType(name: String,
-                      fields: List[ClassField])
+                      fields: List[ClassField],
+                      description: Option[String] = None)
 }
