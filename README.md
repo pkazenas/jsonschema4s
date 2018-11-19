@@ -1,6 +1,6 @@
 # jsonschema4s
 
-Library to create json schema from scala case classes.
+Library enabling json schema creation from scala case classes.
 
 to use current stable version add it to your sbt project:
 "pl.pkazenas" %% "jsonschema4s" % "0.1.5"
